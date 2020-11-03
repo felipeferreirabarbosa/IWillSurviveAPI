@@ -1,6 +1,7 @@
 package com.survive.IWillSurvive.service;
 
 import com.survive.IWillSurvive.dto.ItemInventoryDTO;
+import com.survive.IWillSurvive.dto.LocationDTO;
 import com.survive.IWillSurvive.exception.InvalidLocationException;
 import com.survive.IWillSurvive.exception.SurvivorNotFoundException;
 import com.survive.IWillSurvive.model.entity.ItemsPoints;
@@ -34,30 +35,10 @@ public class SurvivorService {
         this.itemsPointsRepository = itemsPointsRepository;
     }
 
-    public Survivor attLocation(Integer idSurvivor, String newLocation){
+    public Survivor attLocation(Integer idSurvivor, LocationDTO locationDTO){
         Survivor survivor = survivorRepository.findById(idSurvivor).orElseThrow(SurvivorNotFoundException::new);
-        validateLocation(newLocation);
-        survivor.setLastLocation(newLocation);
+        survivor.setLastLocation(locationDTO.getLocation());
         return survivorRepository.save(survivor);
-    }
-
-    public boolean isNumeric(String strNum) {
-        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-        if (strNum == null) {
-            return false;
-        }
-        return pattern.matcher(strNum).matches();
-    }
-
-    public void validateLocation(String value){
-        boolean locationIsNotBetweenParenthesis = value.charAt(value.length() - 1) != ')'
-                || value.charAt(0) != '(' ;
-        boolean locationHaveMoreThenHundredCharacters = value.length() > 100;
-        String values = value.substring(1,value.length()-1);
-        String[] latitudeLongitude = values.split(",");
-        boolean coordinatesNumeric = (isNumeric(latitudeLongitude[0]) && isNumeric(latitudeLongitude[1]));
-        if(locationIsNotBetweenParenthesis || locationHaveMoreThenHundredCharacters || !coordinatesNumeric)
-            throw new InvalidLocationException();
     }
 
     public Survivor create(Survivor survivor){

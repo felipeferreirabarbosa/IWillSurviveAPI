@@ -1,5 +1,6 @@
 package com.survive.IWillSurvive.rest;
 
+import com.survive.IWillSurvive.dto.LocationDTO;
 import com.survive.IWillSurvive.dto.TradeDTO;
 import com.survive.IWillSurvive.model.entity.Survivor;
 import com.survive.IWillSurvive.service.SurvivorService;
@@ -14,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.Map;
 
-@Api(value = "SurvivorController", description = "Api related to manage survivors.")
+@Api(value = "SurvivorController")
 @RestController
 @RequestMapping("/api/survivors")
 public class SurvivorController {
@@ -29,25 +30,23 @@ public class SurvivorController {
         this.survivorService = survivorService;
     }
 
-    @ApiOperation(value = "Add a survivor on database", tags={"survivor create"})
+    @ApiOperation(value = "Add a survivor on database.", tags={"create"})
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Survivor create(@RequestBody @Valid Survivor survivor){
       return survivorService.create(survivor);
     }
 
+    @ApiOperation(value = "Trade operation, where a trader proposes a barter of items.", tags={"trade"})
     @PutMapping("/trade")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void trade(@RequestBody TradeDTO tradeDTO) {
         tradeService.trade(tradeDTO);
     }
 
+    @ApiOperation(value = "Update a survivor location.", tags={"attLocation"})
     @PutMapping("/{idSurvivor}/location")
-    public Survivor attLocation(@PathVariable Integer idSurvivor, @RequestBody Map<String,String> body){
-        String location = body.get("location");
-        if(location.isEmpty()) {
-           throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Location is required!");
-        }
-        return survivorService.attLocation(idSurvivor, location);
+    public Survivor attLocation(@PathVariable Integer idSurvivor, @Valid @RequestBody LocationDTO locationDTO){
+        return survivorService.attLocation(idSurvivor, locationDTO);
     }
 }

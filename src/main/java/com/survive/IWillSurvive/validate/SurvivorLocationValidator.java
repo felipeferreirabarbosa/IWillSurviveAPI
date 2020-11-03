@@ -32,13 +32,17 @@ public class SurvivorLocationValidator implements ConstraintValidator<LocationCo
     }
 
     public boolean isValid(String value, ConstraintValidatorContext context){
-        boolean locationIsNotBetweenParenthesis = value.charAt(value.length() - 1) != ')'
+        boolean locationIsNotBetweenParenthesis = value.charAt(value.length()-1) != ')'
                 || value.charAt(0) != '(' ;
         boolean locationHaveMoreThenHundredCharacters = value.length() > 100;
         String values = value.substring(1,value.length()-1);
         String[] latitudeLongitude = values.split(",");
-        boolean coordinatesNumeric = (isNumeric(latitudeLongitude[0]) && isNumeric(latitudeLongitude[1]));
-
+        boolean coordinatesNumeric;
+        if(latitudeLongitude.length != 2) {
+            coordinatesNumeric = false;
+        } else{
+            coordinatesNumeric=(isNumeric(latitudeLongitude[0]) && isNumeric(latitudeLongitude[1]));
+        }
         return !(locationIsNotBetweenParenthesis || locationHaveMoreThenHundredCharacters) && coordinatesNumeric;
     }
 }

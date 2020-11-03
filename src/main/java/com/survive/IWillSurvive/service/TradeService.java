@@ -3,6 +3,7 @@ package com.survive.IWillSurvive.service;
 import com.survive.IWillSurvive.dto.ItemInventoryDTO;
 import com.survive.IWillSurvive.dto.TradeDTO;
 import com.survive.IWillSurvive.exception.SurvivorNotFoundException;
+import com.survive.IWillSurvive.exception.TradePointsDontMatch;
 import com.survive.IWillSurvive.exception.TradeWithAInfectedException;
 import com.survive.IWillSurvive.model.entity.ItemsPoints;
 import com.survive.IWillSurvive.model.entity.Survivor;
@@ -39,12 +40,15 @@ public class TradeService {
         checkIfItemExistInInventoryAndRemove(trader, traderListInventory);
         checkIfItemExistInInventoryAndRemove(receiver, receiverListInventory);
         boolean isTradePointsEquals = countListPoints(traderListInventory).equals(countListPoints(receiverListInventory));
-        if (isTradePointsEquals) {
+        if (!isTradePointsEquals) {
+            throw new TradePointsDontMatch();
+        } else{
             tradeOperation(trader, receiverListInventory);
             tradeOperation(receiver, traderListInventory);
             survivorRepository.save(trader);
             survivorRepository.save(receiver);
         }
+
 
     }
 

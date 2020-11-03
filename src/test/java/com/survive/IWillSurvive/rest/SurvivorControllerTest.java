@@ -1,35 +1,27 @@
 package com.survive.IWillSurvive.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.survive.IWillSurvive.dto.TradeDTO;
 import com.survive.IWillSurvive.model.entity.Status;
 import com.survive.IWillSurvive.model.entity.Survivor;
-import com.survive.IWillSurvive.model.repository.ItemsPointsRepository;
-import com.survive.IWillSurvive.model.repository.StatusRepository;
-import com.survive.IWillSurvive.model.repository.SurvivorRepository;
 import com.survive.IWillSurvive.service.SurvivorService;
 import com.survive.IWillSurvive.service.TradeService;
-import org.junit.Before;
+
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import static org.mockito.Mockito.*;
-
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(JUnitPlatform.class)
@@ -43,7 +35,6 @@ public class SurvivorControllerTest {
 
     @MockBean
     private TradeService tradeServiceMock;
-
 
     @Test
     public void createTest() throws Exception {
@@ -75,28 +66,44 @@ public class SurvivorControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
+    private void attLocationExpected(Map<String, String> build, ResultMatcher status) throws Exception {
+        mvc.perform(MockMvcRequestBuilders.put("/api/survivors/{idSurvivor}/location", 1)
+                .content(asJsonString(build))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status);
+    }
+
     @Test
     public void attLocationTest() throws Exception {
         Map<String,String> build = new HashMap<String, String>();
         build.put("location","(4,2)");
-
-        mvc.perform(MockMvcRequestBuilders.put("/api/survivors/{idSurvivor}/location",1)
-                .content(asJsonString(build))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        attLocationExpected(build,status().isOk());
 
     }
 
     @Test
     public void attLocationFailTest() throws Exception {
+        Map<String,String> build = new HashMap<String, String>();
+        build.put("location","(4,2");
+        attLocationExpected(build, status().isBadRequest());
 
-        mvc.perform(MockMvcRequestBuilders.put("/api/survivors/{idSurvivor}/location",1)
-                .content("")
+    }
+
+    @Test
+    public  void tradeTest() throws Exception {
+        TradeDTO tradeDTO = new TradeDTO();
+        tradeDTO.setIdReceiver(1);
+        tradeDTO.setItemsReceiver("Fiji Water:10,AK47:5,Campbell Soup:2");
+        tradeDTO.setIdReceiver(2);
+        tradeDTO.setItemsTrader("Fiji Water:10,AK47:5,Campbell Soup:2");
+
+        mvc.perform(MockMvcRequestBuilders.put("/api/survivors/trade")
+                .content(asJsonString(tradeDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
+                .andExpect(status().isNoContent());
     }
 
     public static String asJsonString(final Object obj) {
@@ -106,4 +113,5 @@ public class SurvivorControllerTest {
             throw new RuntimeException(e);
         }
     }
+
 }
